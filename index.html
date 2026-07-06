@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praćenje ćelija i detekcija mitoze — Fluo-N2DL-HeLa</title>
+<style>
+  body{
+    background:#ffffff;
+    color:#000000;
+    font-family:'Times New Roman', Times, serif;
+    font-size:12pt;
+    line-height:1.5;
+    max-width:850px;
+    margin:0 auto;
+    padding:40px 30px 80px;
+  }
+  h1{
+    font-size:20pt;
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h2{
+    font-size:15pt;
+    margin-top:38px;
+    margin-bottom:10px;
+    border-bottom:1px solid #000;
+    padding-bottom:4px;
+  }
+  h3{
+    font-size:13pt;
+    margin-top:22px;
+    margin-bottom:8px;
+  }
+  p{
+    text-align:justify;
+    margin:0 0 12px;
+  }
+  .subtitle{
+    text-align:center;
+    font-size:12pt;
+    font-style:italic;
+    margin-bottom:6px;
+  }
+  .meta{
+    text-align:center;
+    font-size:11pt;
+    margin-bottom:36px;
+    color:#333;
+  }
+  ul{
+    margin:0 0 14px;
+    padding-left:22px;
+  }
+  li{ margin-bottom:6px; text-align:justify; }
+
+  figure{
+    margin:24px auto;
+    text-align:center;
+  }
+  figure img, figure video{
+    max-width:100%;
+    height:auto;
+    border:1px solid #000;
+  }
+  figcaption{
+    font-size:10.5pt;
+    color:#333;
+    margin-top:6px;
+    font-style:italic;
+  }
+
+  table{
+    border-collapse:collapse;
+    width:100%;
+    margin:18px 0;
+    font-size:11.5pt;
+  }
+  table th, table td{
+    border:1px solid #000;
+    padding:6px 10px;
+    text-align:left;
+  }
+  table th{
+    background:#eeeeee;
+  }
+
+  .placeholder{
+    border:1px dashed #666;
+    padding:30px 20px;
+    text-align:center;
+    margin:20px auto;
+    color:#444;
+    background:#fafafa;
+  }
+  .placeholder .naslov{
+    font-weight:bold;
+    margin-bottom:6px;
+  }
+  .video-pair{
+    display:flex;
+    gap:16px;
+    margin:20px 0;
+  }
+  .video-pair .placeholder{
+    flex:1;
+  }
+  @media (max-width:600px){
+    .video-pair{ flex-direction:column; }
+  }
+
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    margin:20px 0;
+  }
+  .gallery figure{
+    margin:0;
+  }
+  .gallery img{
+    width:100%;
+    height:auto;
+    display:block;
+    border:1px solid #000;
+    cursor:zoom-in;
+  }
+
+  .carousel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:20px auto;
+  }
+  .carousel figure{
+    margin:0;
+    max-width:520px;
+  }
+  .carousel img{
+    width:100%;
+    height:auto;
+    display:block;
+    border:1px solid #000;
+    cursor:zoom-in;
+  }
+  .carousel-btn{
+    flex:0 0 auto;
+    width:38px;
+    height:38px;
+    border:1px solid #000;
+    background:#fff;
+    font-size:16px;
+    cursor:pointer;
+    border-radius:50%;
+  }
+  .carousel-btn:hover{
+    background:#eee;
+  }
+
+  .lightbox-overlay{
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.85);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+    cursor:zoom-out;
+  }
+  .lightbox-overlay.active{
+    display:flex;
+  }
+  .lightbox-overlay img{
+    max-width:90%;
+    max-height:90%;
+    border:2px solid #fff;
+  }
+
+  .napomena{
+    border-left:3px solid #000;
+    padding:10px 14px;
+    margin:18px 0;
+    background:#f5f5f5;
+    font-size:11.5pt;
+  }
+  .napomena .lbl{
+    font-weight:bold;
+    display:block;
+    margin-bottom:4px;
+  }
+
+  hr.sep{
+    border:none;
+    border-top:1px solid #000;
+    margin:40px 0;
+  }
+
+  .toc{
+    margin:30px 0 40px;
+    padding:16px 20px;
+    border:1px solid #000;
+  }
+  .toc h2{ border:none; margin-top:0; font-size:13pt; }
+  .toc ol{ margin:0; padding-left:20px; }
+  .toc a{ color:#000; text-decoration:none; }
+  .toc a:hover{ text-decoration:underline; }
+
+  footer{
+    text-align:center;
+    margin-top:60px;
+    font-size:10.5pt;
+    color:#555;
+  }
+</style>
+</head>
+<body>
+
+<h1>Praćenje ćelija i detekcija mitoze kroz sekvencu mikroskopskih snimaka</h1>
+<div class="subtitle">Fluo-N2DL-HeLa skup podataka (Cell Tracking Challenge)</div>
+<div class="meta">Projekat iz predmeta Kompjuterska vizija<br>Nevena Mitrović 2024/3175 · Ena Grubor 2025/3291</div>
+
+<div class="toc">
+  <h2>Sadržaj</h2>
+  <ol>
+    <li><a href="#uvod">Uvod</a></li>
+    <li><a href="#obrada">Predobrada i segmentacija</a></li>
+    <li><a href="#anotacije">Kvalitet ground-truth anotacija</a></li>
+    <li><a href="#mitoza">Asocijacija ćelija i detekcija mitoze</a></li>
+    <li><a href="#dijagram">Dijagram algoritma</a></li>
+    <li><a href="#metrike">Metrike</a></li>
+    <li><a href="#rezultati">Rezultati</a></li>
+    <li><a href="#unapredjenja">Moguća unapređenja</a></li>
+  </ol>
+</div>
+
+<!-- ============ UVOD ============ -->
+<h2 id="uvod">1. Uvod</h2>
+
+<p>Posmatranje ponašanja ćelija važno je za razumevanje mehanizama funkcionisanja organizma, kao i za razumevanje nastanka i razvoja bolesti. Ručno praćenje njihovog kretanja korišćenjem velikog broja time-lapse mikroskopskih snimaka je naporno i dugotrajno, pa su metode računarske vizije od velike koristi za ovaj zadatak.</p>
+
+<p>Automatsko praćenje ćelija ima svoje izazove. Različiti tipovi snimaka zahtevaju različite tehnike akvizicije. Osobine ćelija poput veličine, oblika, kretanja i preklapanja čine zadatak kompleksnim. Gustina populacije i neujednačeno osvetljenje slike dodatno otežavaju problem. Tehnike modelovanja poput Kalmanovog ili čestičnog filtera pokazale su se kao neprimenljive jer je kretanje ćelija nasumično i nepredvidivo.</p>
+
+<p>Projekat obuhvata segmentaciju pojedinačnih ćelija i praćenje njihovog kretanja kroz vreme, detekciju mitoze u svakom frejmu, i prikaz četiri metrike za odabranu ćeliju u bilo kom trenutku: brzine, ukupnog rastojanja, neto rastojanja i koeficijenta ograničenosti (confinement ratio).</p>
+
+<p>Ceo postupak se sastoji iz pet koraka koji se ponavljaju za svaki frejm ulazne sekvence: predobrada, segmentacija, asocijacija, računanje metrika i vizuelizacija.</p>
+
+<!-- ============ OBRADA ============ -->
+<h2 id="obrada">2. Predobrada i segmentacija</h2>
+
+<p>Predobrada ima za cilj da izloži ćelije i kontrastira ih u odnosu na pozadinu radi lakše segmentacije. Slika se prvo normalizuje po intenzitetu, zatim se primenjuje CLAHE (Contrast Limited Adaptive Histogram Equalization) radi lokalnog izjednačavanja kontrasta, nakon čega sledi Gausovsko zamućenje radi smanjenja šuma i adaptivni Gausov threshold radi dobijanja binarne slike.</p>
+
+<p>Adaptivni threshold je izabran jer lokalno prilagođava prag svetlim i tamnim regionima slike, umesto da koristi jedinstven globalni prag za celu sliku. Na kraju se primenjuje morfološko otvaranje, pa zatim morfološko zatvaranje, radi uklanjanja artefakata i preostalog šuma.</p>
+
+<div class="gallery">
+  <figure>
+    <img src="frejm401.png" alt="Frejm 40, sekvenca 1 — originalni frejm, predobrada, binarna maska i watershed segmentacija" onclick="openLightbox(this.src)">
+    <figcaption>Slika 1a. Sekvenca 1, frejm 040: originalni frejm, predobrada, binarna maska i watershed segmentacija</figcaption>
+  </figure>
+  <figure>
+    <img src="frejm402.png" alt="Frejm 40, sekvenca 2 — originalni frejm, predobrada, binarna maska i watershed segmentacija" onclick="openLightbox(this.src)">
+    <figcaption>Slika 1b. Sekvenca 2, frejm 040: originalni frejm, predobrada, binarna maska i watershed segmentacija</figcaption>
+  </figure>
+</div>
+
+<h3>Segmentacija</h3>
+<p>Kako bi se minimizovalo preklapanje objekata, za segmentaciju pojedinačnih ćelija koristi se watershed metoda. Nakon binarizacije, računa se distance transform binarne maske, čiji se lokalni maksimumi koriste kao markeri za watershed algoritam, sa ciljem da se dobiju odvojeni regioni za svaku ćeliju, uključujući i ćelije koje se dodiruju ili delimično preklapaju.</p>
+
+<p>Za svaku segmentiranu ćeliju beleže se centroid, veličina i ugao orijentacije elipse fitovane na region, srednji intenzitet, elongacija i površina. Srednji intenzitet ćelije se računa iz originalne, grayscale slike, unutar eliptičnog regiona te ćelije. Sve ove vrednosti se pamte kroz istoriju svake ćelije i koriste se u proveri prilikom detekcije mitoze.</p>
+
+<!-- ============ ANOTACIJE ============ -->
+<h2 id="anotacije">3. Kvalitet ground-truth anotacija</h2>
+
+<p>Važno je napomenuti da ni same ground-truth anotacije nisu savršene. Pri ručnoj proveri primećeno je da postoji određen broj ćelija na snimku koje uopšte nisu obeležene u GT maskama, a trebalo bi da budu. Ova neusklađenost direktno utiče na izmerenu grešku sistema: deo onoga što metrika beleži kao "grešku detekcije" zapravo je propust u samoj anotaciji, ne u pipeline-u.</p>
+
+<div class="napomena">
+  <span class="lbl">Zapažanje</span>
+  Poređenjem GT centara ćelija sa detektovanim orijentisanim okvirima kroz sekvencu uočeno je da se poklapanje i gustina ćelija menjaju iz frejma u frejm. Ispod se nalazi mesto za prikaz uporednih snimaka (GT naspram detekcije) kroz nekoliko reprezentativnih frejmova.
+</div>
+
+<div class="carousel" id="tra-carousel">
+  <button type="button" class="carousel-btn carousel-prev" onclick="carouselStep('tra-carousel', -1)" aria-label="Prethodni frejm">&#10094;</button>
+  <figure>
+    <img id="tra-carousel-img" src="diagnostic_tra_frame_000.png" alt="GT vs detekcija, frejm 000" onclick="openLightbox(this.src)">
+    <figcaption id="tra-carousel-caption">Frejm 000 &nbsp;(1 / 5)</figcaption>
+  </figure>
+  <button type="button" class="carousel-btn carousel-next" onclick="carouselStep('tra-carousel', 1)" aria-label="Sledeći frejm">&#10095;</button>
+</div>
+
+<script>
+  const carousels = {
+    'tra-carousel': {
+      index: 0,
+      items: [
+        { src: 'diagnostic_tra_frame_000.png', label: 'Frejm 000' },
+        { src: 'diagnostic_tra_frame_020.png', label: 'Frejm 020' },
+        { src: 'diagnostic_tra_frame_040.png', label: 'Frejm 040' },
+        { src: 'diagnostic_tra_frame_060.png', label: 'Frejm 060' },
+        { src: 'diagnostic_tra_frame_080.png', label: 'Frejm 080' }
+      ]
+    }
+  };
+
+  function carouselStep(id, delta) {
+    const c = carousels[id];
+    c.index = (c.index + delta + c.items.length) % c.items.length;
+    const item = c.items[c.index];
+    const img = document.getElementById(id + '-img');
+    const cap = document.getElementById(id + '-caption');
+    img.src = item.src;
+    img.alt = 'GT vs detekcija, ' + item.label.toLowerCase();
+    cap.textContent = item.label + ' \u00a0(' + (c.index + 1) + ' / ' + c.items.length + ')';
+  }
+</script>
+
+<!-- ============ MITOZA ============ -->
+<h2 id="mitoza">4. Asocijacija ćelija i detekcija mitoze</h2>
+
+<p>Asocijacija ćelija između uzastopnih frejmova izvodi se u dva prolaza. U prvom prolazu koristi se Mađarski (Hungarian) algoritam koji nalazi optimalno globalno pridruživanje ćelija tekućeg frejma ćelijama prethodnog frejma na osnovu prostornog rastojanja centroida, uz odbacivanje pridruživanja čije je rastojanje veće od praga, definisanog kao odnos rastojanja i dijagonale slike. Preostale, još nepridružene ćelije prolaze kroz drugi prolaz, gde se svaka jednostavno pridružuje najbližoj ćeliji iz prethodnog frejma, opet uz isti prag rastojanja.</p>
+
+<p>Kada je jedna ćelija iz prethodnog frejma pridružena sa dve ili više ćelija u tekućem frejmu, ovo se tretira kao kandidat za mitozu.</p>
+
+<div class="napomena">
+  <span class="lbl">Prvobitni problem</span>
+  Prvobitna verzija ove šeme oslanjala se isključivo na prostorno rastojanje, bez ikakve dodatne provere: svaki slučaj gde bi jedna ćelija dobila dva ili više pridruženja u sledećem frejmu odmah je proglašavan mitozom. Ova jednostavna verzija se pokazala nedovoljnom u praksi jer je proizvodila znatan broj lažno pozitivnih detekcija, uglavnom kada bi greška segmentacije ili loše pridruživanje najbližeg suseda dovelo do toga da dve različite, susedne ćelije budu pogrešno protumačene kao majka i njena dva potomka.
+</div>
+
+<p>Da bi se ovaj problem rešio, dodate su dve dopune:</p>
+
+<h3>4.1. Provera sestrinske ćelije</h3>
+<p>Nakon inicijalnog pridruživanja, za svaku već pridruženu ćeliju proverava se da li postoji obližnja neasocirana ćelija koja bi trebalo da bude njena sestrinska ćelija nastala deobom; ako je takva ćelija bliža majci nego svom trenutnom paru, preusmerava se na majku, čime se ispravno prepoznaju oba deteta prilikom deobe.</p>
+
+<h3>4.2. Provera stanja neposredno pre deobe</h3>
+<p>Posmatranjem samog snimka detekcije uočeno je nekoliko promena pred mitozu. Nekoliko frejmova pred deobu jezgro ćelije "zasija", kod nekih dođe i do nagle rotacije i smanjenja veličine, uz propratno izduživanje. Na osnovu tih uvida, za svakog kandidata za mitozu proverava se jedan od sledeća dva uslova:</p>
+
+<table>
+  <tr><th>Uslov</th><th>Opis</th></tr>
+  <tr><td>A: jak skok intenziteta</td><td>Srednji intenzitet majke porastao za najmanje 10% u odnosu na prosek prethodna 4 frejma.</td></tr>
+  <tr><td>B: blag skok i promena oblika</td><td>Intenzitet porastao za najmanje 5%, uz istovremenu promenu oblika i veličine ćelije.</td></tr>
+</table>
+
+<p>Ako nijedan od ova dva uslova nije ispunjen, kandidat se odbacuje kao mitoza i postaje nova, nezavisna ćelija.</p>
+
+<h3>"Nestajuće" ćelije</h3>
+<p>Usled različitog osvetljenja i kontrasta prilikom akvizicije, dolazi do toga da se ćelija potpuno izgubi iz kadra na par frejmova, a onda vrlo brzo ponovo pojavi. To kasnije uzrokuje dodelu novog identifikatora ćeliji koja je zapravo već bila uočena u prethodnim frejmovima, situacija koja je takođe narušavala detekciju mitoze. Stoga, ovim ćelijama se dodeljuje popustljiviji prag rastojanja, srazmeran broju frejmova koliko su odsutne, jer su se u međuvremenu mogle više pomeriti.</p>
+
+<!-- ============ DIJAGRAM ============ -->
+<h2 id="dijagram">5. Dijagram algoritma</h2>
+<p>Ceo tok obrade jednog frejma, od predobrade do prikaza korisniku, uključujući granu odlučivanja za detekciju mitoze opisanu u prethodnom poglavlju, prikazan je na sledećoj slici.</p>
+
+<figure>
+  <img src="diagram.svg" alt="Dijagram toka algoritma">
+  <figcaption>Slika 2. Dijagram toka algoritma: obrada frejma, segmentacija, asocijacija i detekcija mitoze</figcaption>
+</figure>
+
+<!-- ============ METRIKE ============ -->
+<h2 id="metrike">6. Metrike</h2>
+<p>Za odabranu ćeliju, u bilo kom frejmu, prate se sledeće četiri veličine:</p>
+
+<table>
+  <tr><th>Metrika</th><th>Opis</th></tr>
+  <tr><td>Brzina</td><td>Euklidsko rastojanje centroida u odnosu na prethodni frejm.</td></tr>
+  <tr><td>Ukupno rastojanje</td><td>Kumulativna suma pomeraja od prvog pojavljivanja ćelije.</td></tr>
+  <tr><td>Neto rastojanje</td><td>Rastojanje od pozicije prvog pojavljivanja do trenutne pozicije.</td></tr>
+  <tr><td>Confinement ratio</td><td>Odnos neto i ukupnog rastojanja: koliko je kretanje usmereno naspram nasumičnog.</td></tr>
+</table>
+
+<figure>
+  <video controls preload="metadata" src="app.mp4"></video>
+  <figcaption>Video: prikaz metrika (brzina, ukupno rastojanje, neto rastojanje, confinement ratio) za odabranu ćeliju kroz sekvencu</figcaption>
+</figure>
+
+<h3>Eksperimentalna postavka</h3>
+<p>Evaluacija je urađena na sekvencama Fluo-N2DL-HeLa skupa podataka, koristeći ground-truth anotacije iz Cell Tracking Challenge formata. Pipeline se pokreće nad celom sekvencom, a svaki detektovani centroid ćelije se mapira na GT identitet proverom vrednosti piksela GT maske na toj poziciji.</p>
+
+<p>Na osnovu ovog mapiranja računaju se tri grupe metrika, preko svih frejmova:</p>
+<ul>
+  <li><strong>Broj ćelija po frejmu:</strong> GT broj naspram broja detektovanih ćelija, apsolutna greška i odnos greške prema GT broju.</li>
+  <li><strong>Asocijacija ćelija:</strong> odnos neuspešnih asocijacija prema ukupnom broju ćelija po frejmu, i broj ID-switch-eva (slučajeva kada identitet pređe na pogrešnu stvarnu ćeliju).</li>
+  <li><strong>Detekcija mitoze:</strong> poređenje detektovanih deoba sa GT deobama (tolerancija od jednog frejma): preciznost, odziv i F1 mera.</li>
+</ul>
+
+<!-- ============ REZULTATI ============ -->
+<h2 id="rezultati">7. Rezultati</h2>
+
+<p>Evaluacija je izvršena na dve sekvence Fluo-N2DL-HeLa skupa podataka: prvoj, sa umerenom gustinom populacije ćelija, i drugoj, sa znatno gušćom populacijom. Poređenje ove dve sekvence pokazuje kako gustina populacije utiče na kvalitet praćenja.</p>
+
+<h3>7.1. Sekvenca 1</h3>
+<p>Krajnji izlaz pipeline-a, koji uključuje detekciju, segmentaciju i praćenje putanja, pušten je preko cele sekvence od 92 frejma:</p>
+
+<figure>
+  <video controls preload="metadata">
+    <source src="full_detection1.mp4" type="video/mp4">
+  </video>
+  <figcaption>Video 1. Krajnja detekcija, sekvenca 1 (Fluo-N2DL-HeLa, 92 frejma)</figcaption>
+</figure>
+
+<h3>7.2. Sekvenca 2 (gušća populacija)</h3>
+<p>Kod gušće populacije ćelije su bliže jedna drugoj i češće se dodiruju ili preklapaju, što otežava i segmentaciju (watershed metoda češće spaja susedne ćelije u jedan region) i asocijaciju (Mađarski algoritam ima više kandidata na sličnom rastojanju za pridruživanje). Posledica toga je primetno veći broj ID-switch-eva u odnosu na prvu, ređu sekvencu, kao i nešto veća greška u broju detektovanih ćelija po frejmu.</p>
+
+<figure>
+  <video controls preload="metadata">
+    <source src="full_detection2.mp4" type="video/mp4">
+  </video>
+  <figcaption>Video 2. Krajnja detekcija, sekvenca 2 (gušća populacija)</figcaption>
+</figure>
+
+<h3>7.3. Poređenje sekvenci</h3>
+
+<h4 style="margin-top:14px; font-size:12pt; font-style:italic;">Broj ćelija po frejmu</h4>
+<p>Preko svih 92 frejma sekvence 1, prosečan odnos greške u odnosu na GT broj ćelija iznosi 2.30% (σ = 1.85%), bez sistematskog rasta greške kako se broj ćelija u sekvenci povećava (od oko 40 ćelija u ranim frejmovima do oko 137 ćelija u poslednjim frejmovima). Kod sekvence 2, taj odnos iznosi 3.29% (σ = 2.31%), što je veće u skladu sa očekivanjem da gušća populacija otežava segmentaciju.</p>
+
+<table>
+  <tr><th>Metrika</th><th>Sekvenca 1</th><th>Sekvenca 2 (gušća)</th></tr>
+  <tr><td>Prosečna greška broja ćelija</td><td>2.30%</td><td>3.29%</td></tr>
+</table>
+
+<h4 style="margin-top:14px; font-size:12pt; font-style:italic;">Pridruživanje ćelija</h4>
+<p>Prosečan odnos neuspešnih pridruživanja iznosi 1.24% kod sekvence 1 i 1.33% kod sekvence 2, dakle stope su slične. Znatno upadljivija razlika je u broju ID-switch-eva: 56 kroz 92 frejma sekvence 1, naspram 307 kod sekvence 2, što potvrđuje da gušća populacija znatno otežava održavanje identiteta ćelija kroz vreme, iako sama stopa neuspešnih pridruživanja ostaje slična.</p>
+
+<table>
+  <tr><th>Metrika</th><th>Sekvenca 1</th><th>Sekvenca 2 (gušća)</th></tr>
+  <tr><td>Neuspešna pridruživanja</td><td>1.24%</td><td>1.33%</td></tr>
+  <tr><td>ID-switch-eva</td><td>56</td><td>307</td></tr>
+</table>
+
+<h4 style="margin-top:14px; font-size:12pt; font-style:italic;">Detekcija mitoze</h4>
+<p>Od 94 GT deobe u sekvenci 1, sistem je detektovao 81, od čega 66 tačnih pogodaka, 15 lažno pozitivnih i 28 propuštenih. Od 212 GT deoba u sekvenci 2, detektovano je 181, od čega 131 tačan pogodak, 50 lažno pozitivnih i 81 propušten. I preciznost i odziv opadaju kod gušće sekvence: gušća populacija dovodi do više grešaka u segmentaciji (watershed spaja ćelije-ćerke u jedan region, što smanjuje odziv) i do više slučajeva kada dve susedne, nezavisne ćelije budu pogrešno protumačene kao majka i dete uprkos proveri intenziteta i oblika (što povećava broj lažno pozitivnih i time smanjuje preciznost).</p>
+
+<table>
+  <tr><th>Metrika</th><th>Sekvenca 1</th><th>Sekvenca 2 (gušća)</th></tr>
+  <tr><td>GT deobe</td><td>94</td><td>212</td></tr>
+  <tr><td>Detektovane deobe</td><td>81</td><td>181</td></tr>
+  <tr><td>Tačni pogoci (TP)</td><td>66</td><td>131</td></tr>
+  <tr><td>Lažno pozitivni (FP)</td><td>15</td><td>50</td></tr>
+  <tr><td>Propušteni (FN)</td><td>28</td><td>81</td></tr>
+  <tr><td>Preciznost</td><td>81.48%</td><td>72.38%</td></tr>
+  <tr><td>Odziv</td><td>70.21%</td><td>61.79%</td></tr>
+  <tr><td>F1 mera</td><td>75.43%</td><td>66.67%</td></tr>
+</table>
+
+<p>Preciznost od 81.48% kod sekvence 1 pokazuje da je provera na osnovu intenziteta i oblika, uvedena upravo zbog problema opisanog u poglavlju o metodama, efikasna u filtriranju lažnih pozitiva, dok odziv od 70.21% pokazuje da se ipak dobar deo stvarnih deoba propušta, najverovatnije zato što segmentacija ne razdvoji ćelije-ćerke na dva odvojena regiona, ili zato što provera intenziteta i oblika odbaci validnu deobu kada promena u tom trenutku nije dovoljno izražena.</p>
+
+<h3>Primeri: dobra i loša detekcija mitoze</h3>
+<p>Uporedni prikaz jednog uspešnog i jednog neuspešnog slučaja detekcije deobe:</p>
+
+<div class="video-pair">
+  <figure>
+    <video controls preload="metadata" src="dobra.mp4"></video>
+    <figcaption>Dobra detekcija mitoze</figcaption>
+  </figure>
+  <figure>
+    <video controls preload="metadata" src="losa.mp4"></video>
+    <figcaption>Loša detekcija mitoze</figcaption>
+  </figure>
+</div>
+
+<!-- ============ UNAPREĐENJA ============ -->
+<h2 id="unapredjenja">8. Moguća unapređenja</h2>
+
+<p>Predstavljeno rešenje je u potpunosti algoritamsko, zasnovano na klasičnim metodama obrade slike (adaptivna binarizacija, watershed segmentacija, Mađarski algoritam za asocijaciju, pravila zasnovana na pragovima za detekciju mitoze). Ovakav pristup je transparentan i lako je razumeti zašto sistem donosi određenu odluku, ali je istovremeno osetljiv na ručno podešene pragove i ne generalizuje se uvek dobro na scene sa gušćom populacijom ili izraženijim preklapanjem ćelija.</p>
+
+<p>Realno unapređenje bi podrazumevalo prelazak na pristupe zasnovane na dubokom učenju, kako za segmentaciju tako i za praćenje:</p>
+<ul>
+  <li><strong>Segmentacija:</strong> korišćenje konvolucionih mreža (na primer U-Net ili slične arhitekture) umesto klasičnog watershed pristupa, čime bi se bolje razdvajale ćelije koje se dodiruju ili preklapaju, naročito u gušćim scenama.</li>
+  <li><strong>Praćenje (tracking):</strong> zamena Mađarskog algoritma naučenim modelom asocijacije koji koristi i izgled ćelije, ne samo prostorno rastojanje, čime bi se smanjio broj ID-switch-eva u gušćim sekvencama.</li>
+  <li><strong>Detekcija mitoze:</strong> treniranje klasifikatora (na primer nad kratkim vremenskim isečkom ili sekvencom kadrova oko kandidata) umesto ručno definisanih pragova intenziteta i oblika, što bi moglo poboljšati i preciznost i odziv istovremeno.</li>
+  <li><strong>Semi-supervised pristup:</strong> s obzirom na to da je ručno anotiranje svih ćelija u svim frejmovima veoma zahtevno, a ground-truth anotacije nisu ni same savršene, semi-supervised ili self-supervised metode bi mogle da iskoriste veliku količinu neanotiranih frejmova uz manji broj anotiranih primera, i tako smanje zavisnost od kompletno obeleženog skupa podataka.</li>
+</ul>
+
+<p>Ovakav pomak bi verovatno poboljšao rezultate upravo u slučajevima gde trenutni pipeline najviše greši: kod gušće populacije ćelija i kod deoba koje ne prate tipičan obrazac promene intenziteta i oblika.</p>
+
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+<script>
+  function openLightbox(src){
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-overlay').classList.add('active');
+  }
+  function closeLightbox(){
+    document.getElementById('lightbox-overlay').classList.remove('active');
+  }
+</script>
+
+<hr class="sep">
+
+</body>
+</html>

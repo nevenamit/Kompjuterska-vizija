@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#FFFFFF" />
+
+  <style>
+    .title { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1A202C; }
+    .subtitle { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; fill: #718096; }
+    .text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; fill: #2D3748; }
+    .bold-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; fill: #2D3748; }
+    .decision-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #2B6CB0; text-anchor: middle; }
+    .arrow-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #4A5568; }
+    
+    .block { fill: #F7FAFC; stroke: #CBD5E0; stroke-width: 1.5; rx: 6; ry: 6; }
+    .block-accent { fill: #EDF2F7; stroke: #A0AEC0; stroke-width: 1.5; rx: 6; ry: 6; }
+    .decision { fill: #EBF8FF; stroke: #3182CE; stroke-width: 1.5; }
+    .yes-block { fill: #F0FFF4; stroke: #38A169; stroke-width: 1.5; rx: 6; ry: 6; }
+    .no-block { fill: #FFF5F5; stroke: #E53E3E; stroke-width: 1.5; rx: 6; ry: 6; }
+    
+    .line { fill: none; stroke: #718096; stroke-width: 2; stroke-linecap: round; }
+    .line-decision { fill: none; stroke: #3182CE; stroke-width: 2; }
+  </style>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#718096" />
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#3182CE" />
+    </marker>
+  </defs>
+
+  <rect x="250" y="20" width="260" height="50" class="block-accent" />
+  <text x="380" y="42" class="bold-text" text-anchor="middle">POČETAK OBRADE FREJMA</text>
+  <text x="380" y="58" class="subtitle" text-anchor="middle">Iteracija kroz time-lapse sekvencu</text>
+
+  <line x1="380" y1="70" x2="380" y2="95" class="line" marker-end="url(#arrow)" />
+
+  <rect x="100" y="95" width="560" height="80" class="block" />
+  <text x="120" y="120" class="title">1. Predobrada slike</text>
+  <text x="120" y="145" class="text">Normalizacija intenziteta ➔ CLAHE (lokalni kontrast) ➔ Gausovsko zamućenje (šum)</text>
+  <text x="120" y="162" class="text">➔ Adaptivni Gausov threshold (binarizacija) ➔ Morfološko otvaranje i zatvaranje</text>
+
+  <line x1="380" y1="175" x2="380" y2="205" class="line" marker-end="url(#arrow)" />
+
+  <rect x="100" y="205" width="560" height="80" class="block" />
+  <text x="120" y="230" class="title">2. Segmentacija ćelija (Razdvajanje)</text>
+  <text x="120" y="255" class="text">Računanje Distance Transform-a nad binarnom maskom i detekcija lokalnih maksimuma</text>
+  <text x="120" y="272" class="text">➔ Watershed algoritam (izdvajanje pojedinačnih i preklopljenih ćelija + osobine)</text>
+
+  <line x1="380" y1="285" x2="380" y2="315" class="line" marker-end="url(#arrow)" />
+
+  <rect x="100" y="315" width="560" height="70" class="block" />
+  <text x="120" y="340" class="title">3. Asocijacija ćelija kroz uzastopne frejmova</text>
+  <text x="120" y="365" class="text">Prolaz 1: Mađarski algoritam (globalno)  |  Prolaz 2: Sparivanje najbližih suseda (prag)</text>
+
+  <line x1="380" y1="385" x2="380" y2="415" class="line" marker-end="url(#arrow)" />
+
+  <g transform="translate(380, 465)">
+    <polygon points="0,-50 160,0 0,50 -160,0" class="decision" />
+    <text x="0" y="-5" class="decision-text">Da li je 1 ćelija iz</text>
+    <text x="0" y="12" class="decision-text">prethodnog spojena sa ≥ 2?</text>
+  </g>
+
+  <line x1="540" y1="465" x2="570" y2="465" class="line" />
+  <line x1="570" y1="465" x2="570" y2="675" class="line" />
+  <line x1="570" y1="675" x2="480" y2="675" class="line" marker-end="url(#arrow)" />
+  <text x="548" y="455" class="arrow-text">NE</text>
+
+  <rect x="230" y="650" width="250" height="50" class="block" />
+  <text x="245" y="670" class="bold-text">Normalno praćenje kretanja</text>
+  <text x="245" y="688" class="subtitle">Ažuriranje putanje i "nestalih" ćelija</text>
+
+  <line x1="380" y1="515" x2="380" y2="545" class="line-decision" marker-end="url(#arrow-blue)" />
+  <text x="390" y="533" class="arrow-text" style="fill: #3182CE;">DA (Kandidat za mitozu)</text>
+
+  <g transform="translate(380, 585)">
+    <polygon points="0,-40 180,0 0,40 -180,0" class="decision" />
+    <text x="0" y="-5" class="decision-text">Skok intenziteta ≥ 10% (ili ≥ 5%</text>
+    <text x="0" y="12" class="decision-text">uz naglu promenu oblika/veličine)?</text>
+  </g>
+
+  <line x1="200" y1="585" x2="160" y2="585" class="line" />
+  <line x1="160" y1="585" x2="160" y2="640" class="line" marker-end="url(#arrow)" />
+  <text x="170" y="575" class="arrow-text">DA</text>
+
+  <line x1="560" y1="585" x2="600" y2="585" class="line" />
+  <line x1="600" y1="585" x2="600" y2="640" class="line" marker-end="url(#arrow)" />
+  <text x="575" y="575" class="arrow-text">NE</text>
+
+  <rect x="60" y="640" width="150" height="60" class="yes-block" />
+  <text x="75" y="665" class="bold-text" style="fill: #22543D;">POTVRĐENA MITOZA</text>
+  <text x="75" y="682" class="subtitle" style="fill: #2F855A;">Kreiranje ćelija-ćerki</text>
+
+  <rect x="490" y="640" width="160" height="60" class="no-block" />
+  <text x="505" y="665" class="bold-text" style="fill: #742A2A;">ODBAČENA MITOZA</text>
+  <text x="505" y="682" class="subtitle" style="fill: #9B2C2C;">Nova nezavisna ćelija</text>
+
+  <line x1="135" y1="700" x2="135" y2="735" class="line" />
+  <line x1="570" y1="700" x2="570" y2="735" class="line" />
+  <line x1="355" y1="700" x2="355" y2="735" class="line" />
+  
+  <line x1="135" y1="735" x2="570" y2="735" class="line" />
+  <line x1="380" y1="735" x2="380" y2="760" class="line" marker-end="url(#arrow)" />
+
+  <rect x="100" y="760" width="560" height="85" class="block" />
+  <text x="120" y="785" class="title">4. Računanje i ažuriranje metrika (za odabranu ćeliju)</text>
+  <text x="120" y="810" class="text">• Brzina (Euklidsko rastojanje)  |  • Ukupno rastojanje (Kumulativna suma pomeraja)</text>
+  <text x="120" y="828" class="text">• Neto rastojanje (Od starta do trenutne pozicije)  |  • Confinement ratio (Neto / Ukupno)</text>
+
+  <line x1="380" y1="845" x2="380" y2="875" class="line" />
+
+  <rect x="100" y="875" width="560" height="70" class="block-accent" style="stroke: #4A5568;" />
+  <text x="120" y="900" class="title" style="fill: #2D3748;">5. Prikaz frejma i vizuelizacija</text>
+  <text x="120" y="925" class="text" style="font-weight: 500;">Iscrtavanje detektovanih granica (kontura) i istorije putanja ćelija korisniku</text>
+
+  <line x1="380" y1="945" x2="380" y2="975" class="line" stroke-dasharray="4,4" marker-end="url(#arrow)" />
+  <text x="390" y="968" class="subtitle" style="font-style: italic;">Prelazak na sledeći frejm...</text>
+</svg>
