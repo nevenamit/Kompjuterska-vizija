@@ -387,7 +387,6 @@
 <p>Evaluacija je izvršena na dve sekvence Fluo-N2DL-HeLa skupa podataka: prvoj, sa umerenom gustinom populacije ćelija, i drugoj, sa znatno gušćom populacijom. Poređenje ove dve sekvence pokazuje kako gustina populacije utiče na kvalitet praćenja.</p>
 
 <h3>7.1. Sekvenca 1</h3>
-<p>Krajnji izlaz pipeline-a, koji uključuje detekciju, segmentaciju i praćenje putanja, pušten je preko cele sekvence od 92 frejma:</p>
 
 <figure>
   <video controls preload="metadata">
@@ -397,7 +396,7 @@
 </figure>
 
 <h3>7.2. Sekvenca 2 (gušća populacija)</h3>
-<p>Kod gušće populacije ćelije su bliže jedna drugoj i češće se dodiruju ili preklapaju, što otežava i segmentaciju (watershed metoda češće spaja susedne ćelije u jedan region) i asocijaciju (Mađarski algoritam ima više kandidata na sličnom rastojanju za pridruživanje). Posledica toga je primetno veći broj ID-switch-eva u odnosu na prvu, ređu sekvencu, kao i nešto veća greška u broju detektovanih ćelija po frejmu.</p>
+<p>Kod gušće populacije ćelije su bliže jedna drugoj i češće se dodiruju ili preklapaju, što otežava i segmentaciju i pridruživanje ćelija. Posledica toga je primetno veći broj ID-switch-eva u odnosu na prvu, ređu sekvencu, kao i nešto veća greška u broju detektovanih ćelija po frejmu.</p>
 
 <figure>
   <video controls preload="metadata">
